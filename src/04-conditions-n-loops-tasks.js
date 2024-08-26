@@ -126,8 +126,13 @@ function isTriangle(a, b, c) {
  *   { top:20, left:20, width: 20, height: 20 }    =>  false
  *
  */
-function doRectanglesOverlap(/* rect1, rect2 */) {
-  throw new Error('Not implemented');
+function doRectanglesOverlap(rect1, rect2) {
+  const probability = [];
+  probability.push(rect1.left > rect2.left + rect2.width);
+  probability.push(rect1.top > rect2.top + rect2.height);
+  probability.push(rect2.top > rect1.top + rect1.height);
+  probability.push(rect2.left > rect1.width + rect1.left);
+  return !probability.includes(true);
 }
 
 
@@ -157,8 +162,8 @@ function doRectanglesOverlap(/* rect1, rect2 */) {
  *   { center: { x:0, y:0 }, radius:10 },  { x:10, y:10 }   => false
  *
  */
-function isInsideCircle(/* circle, point */) {
-  throw new Error('Not implemented');
+function isInsideCircle(circle, point) {
+  return (point.x - circle.center.x) ** 2 + (point.y - circle.center.y) ** 2 < circle.radius ** 2;
 }
 
 
@@ -173,15 +178,16 @@ function isInsideCircle(/* circle, point */) {
  *   'abracadabra'  => 'c'
  *   'entente' => null
  */
-function findFirstSingleChar(/* str */) {
-  throw new Error('Not implemented');
+function findFirstSingleChar(str) {
+  return str.split('').sort().join('').replace(/(\w)\1+/g, '')
+    .trim()[0];
 }
 
 
 /**
  * Returns the string representation of math interval,
  * specified by two points and include / exclude flags.
- * See the details: https://en.wikipedia.org/wiki/Interval_(mathematics)
+ * See the details:  https://en.wikipedia.org/wiki/Interval_(mathematics)
  *
  * Please take attention, that the smaller number should be the first in the notation
  *
@@ -200,8 +206,13 @@ function findFirstSingleChar(/* str */) {
  *   5, 3, true, true   => '[3, 5]'
  *
  */
-function getIntervalString(/* a, b, isStartIncluded, isEndIncluded */) {
-  throw new Error('Not implemented');
+function getIntervalString(a, b, isStartIncluded, isEndIncluded) {
+  let str = [a, b].sort().join(', ');
+  if (isStartIncluded) str = `[${str}`;
+  if (!isStartIncluded) str = `(${str}`;
+  if (isEndIncluded) str = `${str}]`;
+  if (!isEndIncluded) str = `${str})`;
+  return str;
 }
 
 
@@ -259,8 +270,23 @@ function reverseInteger(num) {
  *   5436468789016589 => false
  *   4916123456789012 => false
  */
-function isCreditCardNumber(/* ccn */) {
-  throw new Error('Not implemented');
+function isCreditCardNumber(ccn) {
+  const parity = String(ccn).length % 2;
+  const arr = String(ccn).split('');
+  const probability = arr.reduce((summary, num, idx) => {
+    let sum = summary;
+    let digit = Number(num);
+    if (idx % 2 === parity) {
+      digit *= 2;
+      if (digit > 9) {
+        digit -= 9;
+      }
+    }
+    sum += digit;
+    return sum;
+  }, 0);
+
+  return probability % 10 === 0;
 }
 
 /**
@@ -305,8 +331,25 @@ function getDigitalRoot(num) {
  *   '{)' = false
  *   '{[(<{[]}>)]}' = true
  */
-function isBracketsBalanced(/* str */) {
-  throw new Error('Not implemented');
+function isBracketsBalanced(str) {
+  const brackets = {
+    ')': '(',
+    '}': '{',
+    ']': '[',
+    '>': '<',
+  };
+  const cache = [];
+
+  for (let i = 0; i < str.length; i += 1) {
+    if (!cache.length) {
+      cache.push(str[i]);
+    } else if (cache[cache.length - 1] === brackets[str[i]]) {
+      cache.pop();
+    } else {
+      cache.push(str[i]);
+    }
+  }
+  return cache.length === 0;
 }
 
 
@@ -370,8 +413,28 @@ function getCommonDirectoryPath(/* pathes */) {
  *                         [ 6 ]]
  *
  */
-function getMatrixProduct(/* m1, m2 */) {
-  throw new Error('Not implemented');
+function getMatrixProduct(m1, m2) {
+  const matrix = [];
+  const rowA = m1.length;
+  const colA = m1[0].length;
+  const rowB = m2.length;
+  const colB = m2[0].length;
+
+  if (colA !== rowB) return false;
+
+  for (let i = 0; i < rowA; i += 1) {
+    matrix[i] = [];
+  }
+  for (let k = 0; k < colB; k += 1) {
+    for (let i = 0; i < rowA; i += 1) {
+      let temp = 0;
+      for (let j = 0; j < rowB; j += 1) {
+        temp += m1[i][j] * m2[j][k];
+        matrix[i][k] = temp;
+      }
+    }
+  }
+  return matrix;
 }
 
 
